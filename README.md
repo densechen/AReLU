@@ -5,6 +5,7 @@ Activation Function Player with PyTorch.
 ## 1. Introduction
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU). 
+
 While developing, we found that this repo is quiet convenient for people to do different kind of experiments with different activation functions, different learning rating, different optimizer and different network structure. And it is easy for us to add new activation functions and new network structures into program. What's more, based on visdom and ploty, we also provide a quite nice visualization of training process and training results.
 
 This project is friendly to newcomers of PyTorch.
@@ -67,9 +68,11 @@ Testing accuracy (visualize on visdom: http://localhost:8097/):
 ![acc](pictures/acc.png)
 
 Continuous Error Bars of training loss with five runs (saved under `results` as html file):
+
 ![loss_ceb](pictures/loss_ceb.png)
 
 Continuous Error Bars of testing accuracy with five runs (saved under `results` as html file):
+
 ![acc_ceb](pictures/acc_ceb.png)
 
 ### Run with different parameters
@@ -133,7 +136,36 @@ from .new_activation_functions import NewActivationFunctions
 ### New network structure
 1. Write a python script file under `models`, such as *new_network_structure.py*, which contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`. Such as:
 
-@import "./models/linear.py" (cmd="python")
+```python
+from models import BaseModel
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class LinearMNIST(BaseModel):
+    def __init__(self, activation: nn.Module):
+        super().__init__(activation)
+
+        self.linear1 = nn.Sequential(
+            nn.Linear(28 * 28, 512),
+            activation(),
+        )
+
+        self.linear2 = nn.Sequential(
+            nn.Linear(512, 10),
+            nn.LogSoftmax(dim=-1)
+        )
+
+    def forward(self, x):
+        x = x.view(-1, 28 * 28)
+
+        x = self.linear1(x)
+
+        x = self.linear2(x)
+
+        return x
+```
 
 2. Import new network structure in [models/\_\_init\_\_/py](models/__init__.py), like:
 ```python
@@ -145,7 +177,7 @@ from .linear import LinearMNIST
 ### More
 You can modify `main.py` to try with more datasets and optimizer.
 
-## 5. More task
+## 5. More tasks
 
 ### Classification
 
