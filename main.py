@@ -21,9 +21,9 @@ MODELS = list(models.__class_dict__.keys())
 parser = argparse.ArgumentParser(description="Activation Player with PyTorch.")
 parser.add_argument("--batch_size", default=128, type=int,
                     help="batch size for training")
-parser.add_argument("--lr", default=1e-4, type=float, help="learning rate")
+parser.add_argument("--lr", default=1e-5, type=float, help="learning rate")
 parser.add_argument("--epochs", default=20, type=int, help="training epochs")
-parser.add_argument("--times", default=3, type=int,
+parser.add_argument("--times", default=5, type=int,
                     help="repeat runing times")
 parser.add_argument("--data_root", default="data", type=str,
                     help="the path to MNIST dataset")
@@ -33,7 +33,7 @@ parser.add_argument("--net", default="ConvMNIST", choices=MODELS,
                     help="network architecture for experiments. you can add new models in ./models.")
 parser.add_argument("--af", default="all", choices=AFS +
                     ["all"], help="the activation function used in experiments. you can specify an activation function by name, or try with all activation functions by `all`")
-parser.add_argument("--optim", default="SGD", type=str, choices=["SGD", "Adam"],
+parser.add_argument("--optim", default="Adam", type=str, choices=["SGD", "Adam"],
                     help="optimizer used in training.")
 parser.add_argument("--cuda", action="store_true", default=False,
                     help="with cuda training. this would be much faster.")
