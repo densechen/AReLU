@@ -73,9 +73,9 @@ class ContinuousErrorBars(object):
 
         layout = go.Layout(
             paper_bgcolor="rgb(255, 255, 255)",
-            plot_bgcolor="rgb(229, 229, 229)",
+            plot_bgcolor="rgb(255, 255, 255)",
             xaxis=dict(
-                gridcolor="rgb(255, 255, 255)",
+                gridcolor="rgb(229, 229, 229)",
                 range=[1, x_len],
                 showgrid=True,
                 showline=False,
@@ -86,7 +86,7 @@ class ContinuousErrorBars(object):
                 ticktext="Epochs",
             ),
             yaxis=dict(
-                gridcolor="rgb(255, 255, 255)",
+                gridcolor="rgb(229, 229, 229)",
                 showgrid=True,
                 showline=False,
                 showticklabels=True,
