@@ -4,7 +4,7 @@ Activation Function Player with PyTorch.
 
 ## 1. Introduction
 
-This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU). 
+This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU).
 
 While developing, we found that this repo is quiet convenient for people to do different kind of experiments with different activation functions, different learning rating, different optimizer and different network structure. And it is easy for us to add new activation functions and new network structures into program. What's more, based on visdom and ploty, we also provide a quite nice visualization of training process and training results.
 
@@ -19,7 +19,8 @@ pip install -r requirements.txt
 ```
 
 **NOTE**: PAU is only CUDA supported. You have to compile it first:
-``` shell
+
+```shell
 pip install airspeed==0.5.14 
 
 cd activations/pau/cuda
@@ -44,26 +45,30 @@ except Exception:
 
 We are using visdom to visualize the training process. 
 Before training, please setup the visdom server:
+
 ```shell
 python -m visdom.server &
 ```
-Now, you can refer to "http://localhost:8097/" for more training information.
+
+Now, you can refer to "[http://localhost:8097/](http://localhost:8097/)" for more training information.
 
 **NOTE**: Don't worry about the training data. The program will download the MNIST dataset while runtime and save it under `args.data_root`
 
 ### Quick start
+
 If you want to have a quick start with default parameters, just run:
+
 ```shell
 python main.py --cuda
 ```
 
 We will plot the Continuous Error Bars with ploty and save it as a html file under `results` folder. A json file which records same static data is also generated and saved under `results`.
 
-Training loss (visualzie on visdom: http://localhost:8097/):
+Training loss (visualzie on visdom: [http://localhost:8097/](http://localhost:8097/)):
 
 ![loss](pictures/loss.png)
 
-Testing accuracy (visualize on visdom: http://localhost:8097/):
+Testing accuracy (visualize on visdom: [http://localhost:8097/](http://localhost:8097/)):
 
 ![acc](pictures/acc.png)
 
@@ -76,6 +81,7 @@ Continuous Error Bars of testing accuracy with five runs (saved under `results` 
 ![acc_ceb](pictures/acc_ceb.png)
 
 ### Run with different parameters
+
 You can try with more flexible parameters by:
 
 ```shell
@@ -113,9 +119,11 @@ python main.py -h
 ```
 
 ### Do a full training
+
 We provide a script for doing a full training with different activation functions, learning rates, optimizers and network structure.
 
 Just run:
+
 ```shell
 ./train.sh
 ```
@@ -125,65 +133,71 @@ Just run:
 ## 4. Explore
 
 ### New activation functions
-1. write a python script file under `activations`, such as *new_activation_functions.py*, which contains the implementation of new activation functions. 
+
+1. write a python script file under `activations`, such as *new_activation_functions.py*, which contains the implementation of new activation functions.
+
 2. import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py), like:
 
-```python
-from .new_activation_functions import NewActivationFunctions
-```
-3. Enjoy it! 
+    ```python
+    from .new_activation_functions import NewActivationFunctions
+    ```
+
+3. Enjoy it!
 
 ### New network structure
+
 1. Write a python script file under `models`, such as *new_network_structure.py*, which contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`. Such as:
 
-```python
-from models import BaseModel
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+    ```python
+    from models import BaseModel
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
 
 
-class LinearMNIST(BaseModel):
-    def __init__(self, activation: nn.Module):
-        super().__init__(activation)
+    class LinearMNIST(BaseModel):
+        def __init__(self, activation: nn.Module):
+            super().__init__(activation)
 
-        self.linear1 = nn.Sequential(
-            nn.Linear(28 * 28, 512),
-            activation(),
-        )
+            self.linear1 = nn.Sequential(
+                nn.Linear(28 * 28, 512),
+                activation(),
+            )
 
-        self.linear2 = nn.Sequential(
-            nn.Linear(512, 10),
-            nn.LogSoftmax(dim=-1)
-        )
+            self.linear2 = nn.Sequential(
+                nn.Linear(512, 10),
+                nn.LogSoftmax(dim=-1)
+            )
 
-    def forward(self, x):
-        x = x.view(-1, 28 * 28)
+        def forward(self, x):
+            x = x.view(-1, 28 * 28)
 
-        x = self.linear1(x)
+            x = self.linear1(x)
 
-        x = self.linear2(x)
+            x = self.linear2(x)
 
-        return x
-```
+            return x
+    ```
 
 2. Import new network structure in [models/\_\_init\_\_/py](models/__init__.py), like:
-```python
-from .linear import LinearMNIST
-```
+
+    ```python
+    from .linear import LinearMNIST
+    ```
 
 3. Enjoy it!
 
 ### More
+
 You can modify `main.py` to try with more datasets and optimizer.
 
 ## 5. More tasks
 
 ### Classification
 
-You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structure. 
+You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structure.
 After download the repo, you just copy `activations` folder into repo, and modify some code.
 
-### Segmentation 
+### Segmentation
 
 You can refer to [Detectron2](https://github.com/facebookresearch/detectron2.git) for more experiments on segmentation. And refer to [UNet-Brain](https://github.com/mateuszbuda/brain-segmentation-pytorch.git) for a simple test with UNet on brain segmentation.
