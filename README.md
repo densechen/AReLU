@@ -6,9 +6,11 @@ Activation Function Player with PyTorch.
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU).
 
-While developing, we found that this repo is quiet convenient for people to do different kind of experiments with different activation functions, different learning rating, different optimizer and different network structure. And it is easy for us to add new activation functions and new network structures into program. What's more, based on visdom and ploty, we also provide a quite nice visualization of training process and training results.
+While developing, we found that this repo is quite convenient for people to do experiments with different activation functions, learning ratings, optimizers and network structures. 
+It is easy for us to add new activation functions and network structures into program. 
+What's more, based on visdom and ploty, we also provide a nice visualization of training process and testing results.
 
-This project is friendly to newcomers of PyTorch.
+**This project is friendly to newcomers of PyTorch.**
 
 ## 2. Install
 
@@ -43,16 +45,18 @@ except Exception:
 
 ### Prepare
 
-We are using visdom to visualize the training process. 
-Before training, please setup the visdom server:
+We use visdom to visualize training process. 
+Before training, please setup visdom server:
 
 ```shell
 python -m visdom.server &
 ```
 
-Now, you can refer to "[http://localhost:8097/](http://localhost:8097/)" for more training information.
+New, you can click [here](http://localhost:8097/) to check your training loss and testing accuracy while runtime.
 
-**NOTE**: Don't worry about the training data. The program will download the MNIST dataset while runtime and save it under `args.data_root`
+![visdom](pictures/visdom.png)
+
+**NOTE**: Don't worry about training data. The program will download the MNIST dataset while runtime and save it under `args.data_root`
 
 ### Quick start
 
@@ -62,7 +66,8 @@ If you want to have a quick start with default parameters, just run:
 python main.py --cuda
 ```
 
-We will plot the Continuous Error Bars with ploty and save it as a html file under `results` folder. A json file which records same static data is also generated and saved under `results`.
+We plot the Continuous Error Bars with ploty and save it as a html file under `results` folder. 
+A json file which records same static data is also generated and saved under `results`.
 
 Training loss (visualzie on visdom: [http://localhost:8097/](http://localhost:8097/)):
 
@@ -80,9 +85,8 @@ Continuous Error Bars of testing accuracy with five runs (saved under `results` 
 
 ![acc_ceb](pictures/acc_ceb.png)
 
-### Run with different parameters
 
-You can try with more flexible parameters by:
+### Run with different parameters
 
 ```shell
 python main.py -h
@@ -118,9 +122,9 @@ python main.py -h
     --exname EXNAME       experiment name of visdom.
 ```
 
-### Do a full training
+### Full training
 
-We provide a script for doing a full training with different activation functions, learning rates, optimizers and network structure.
+We provide a script for doing a full training with all activation functions, learning rates, optimizers and network structures.
 
 Just run:
 
@@ -134,7 +138,7 @@ Just run:
 
 ### New activation functions
 
-1. write a python script file under `activations`, such as *new_activation_functions.py*, which contains the implementation of new activation functions.
+1. write a python script file under `activations`, such as *new_activation_functions.py*, which contains the implementation of new activation function.
 
 2. import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py), like:
 
@@ -189,13 +193,13 @@ Just run:
 
 ### More
 
-You can modify `main.py` to try with more datasets and optimizer.
+You can modify `main.py` to try with more datasets and optimizers.
 
 ## 5. More tasks
 
 ### Classification
 
-You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structure.
+You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structures.
 After download the repo, you just copy `activations` folder into repo, and modify some code.
 
 ### Segmentation
