@@ -132,7 +132,7 @@ if __name__ == "__main__":
             loss_dict = train(model, optimizer)
 
             visualize.visualize_losses(loss_dict, title="Loss", env=args.exname +
-                                       "-{}-{}_{}".format(args.lr, args.net, time), epoch=epoch)
+                                       "-{}-{}-{}_{}".format(args.net, args.optim, args.lr, time), epoch=epoch)
 
             for k in loss_dicts.keys():
                 loss_dicts[k][time].append(loss_dict[k])
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 correct = test(model)
                 visualize.visualize_accuracy(
-                    correct, title="Accuracy", env=args.exname+"-{}-{}_{}".format(args.lr, args.net, time), epoch=epoch)
+                    correct, title="Accuracy", env=args.exname+"-{}-{}-{}_{}".format(args.net, args.optim, args.lr, time), epoch=epoch)
                 # LOG
                 for k in acc_dicts.keys():
                     acc_dicts[k][time].append(correct[k])

@@ -52,7 +52,7 @@ Before training, please setup visdom server:
 python -m visdom.server &
 ```
 
-New, you can click [here](http://localhost:8097/) to check your training loss and testing accuracy while runtime.
+Now, you can click [here](http://localhost:8097/) to check your training loss and testing accuracy while runtime.
 
 ![visdom](pictures/visdom.png)
 
@@ -138,7 +138,7 @@ Just run:
 
 ### New activation functions
 
-1. write a python script file under `activations`, such as *new_activation_functions.py*, which contains the implementation of new activation function.
+1. write a python script file under `activations`, such as *new_activation_functions.py*, where contains the implementation of new activation function.
 
 2. import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py), like:
 
@@ -150,7 +150,7 @@ Just run:
 
 ### New network structure
 
-1. Write a python script file under `models`, such as *new_network_structure.py*, which contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`. Such as:
+1. Write a python script file under `models`, such as *new_network_structure.py*, where contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`. Such as:
 
     ```python
     from models import BaseModel
@@ -200,8 +200,30 @@ You can modify `main.py` to try with more datasets and optimizers.
 ### Classification
 
 You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structures.
-After download the repo, you just copy `activations` folder into repo, and modify some code.
+After downloading the repo, you just copy `activations` folder into repo, and modify some code.
 
 ### Segmentation
 
 You can refer to [Detectron2](https://github.com/facebookresearch/detectron2.git) for more experiments on segmentation. And refer to [UNet-Brain](https://github.com/mateuszbuda/brain-segmentation-pytorch.git) for a simple test with UNet on brain segmentation.
+
+## 6. Json to Latex
+
+We provide a lightly python script that can collect the json file data which generated under `result` folder to readable latex code.
+
+```shell
+python json_to_latex.py -h
+    usage: json_to_latex.py [-h] [--exname EXNAME] [--data {best,mean,std}]
+                            [--epoch {first epoch,best}] [--output OUTPUT]
+
+    Json to LaTex (Lightly)
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --exname EXNAME       exname to generate json
+    --data {best,mean,std}
+                            best: best accuracy, mean: mean accuracy, std: std of
+                            acc
+    --epoch {first epoch,best}
+                            which epoch to load.
+    --output OUTPUT       output filename
+```
