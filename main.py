@@ -26,11 +26,14 @@ parser.add_argument("--epochs", default=20, type=int, help="training epochs")
 parser.add_argument("--times", default=5, type=int,
                     help="repeat runing times")
 parser.add_argument("--data_root", default="data", type=str,
-                    help="the path to MNIST dataset")
+                    help="the path to dataset")
+parser.add_argument("--dataset", default="MNIST",
+                    choices=["MNIST", "SVHN"], help="the dataset to play with.")
 parser.add_argument("--num_workers", default=2, type=int,
                     help="number of workers to load data")
 parser.add_argument("--net", default="ConvMNIST", choices=MODELS,
                     help="network architecture for experiments. you can add new models in ./models.")
+parser.add_argument("--resume", default=None, help="pretrained path to resume")
 parser.add_argument("--af", default="all", choices=AFS +
                     ["all"], help="the activation function used in experiments. you can specify an activation function by name, or try with all activation functions by `all`")
 parser.add_argument("--optim", default="Adam", type=str, choices=["SGD", "Adam"],
@@ -44,10 +47,17 @@ args = parser.parse_args()
 args.cuda = True
 
 # 1. BUILD DATASET
-train_dataset = datasets.MNIST(
-    root=args.data_root, train=True, transform=transforms.ToTensor(), download=True)
-test_dataset = datasets.MNIST(
-    root=args.data_root, train=False, transform=transforms.ToTensor())
+if args.dataset == "MNIST":
+    train_dataset = datasets.MNIST(
+        root=args.data_root, train=True, transform=transforms.ToTensor(), download=True)
+    test_dataset = datasets.MNIST(
+        root=args.data_root, train=False, transform=transforms.ToTensor())
+elif args.dataset == "SVHN":
+    train_dataset = datasets.SVHN(
+        root=args.data_root, split="train", transform=transforms.ToTensor(), target_transform=transforms.Lambda(lambda y: y % 10), download=True
+    )
+    test_dataset = datasets.SVHN(root=args.data_root, split="test", transform=transforms.ToTensor(
+    ), target_transform=transforms.Lambda(lambda y: y % 10), download=True)
 
 train_dataloader = torch.utils.data.DataLoader(
     train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False, num_workers=args.num_workers, pin_memory=True)
@@ -64,6 +74,10 @@ def define_model_optimizer():
     model = {af: models.__class_dict__[args.net](
         activations.__class_dict__[af]) for af in afs}
     model = nn.ModuleDict(model)
+
+    if args.resume is not None:
+        model.load_state_dict(torch.load(args.resume), strict=True)
+        print("Load pretrianed model from {}".format(args.resume))
 
     model = model.cuda() if args.cuda else model
 
@@ -149,12 +163,18 @@ if __name__ == "__main__":
                     if epoch == 1:
                         testing_accuracy["first epoch {}".format(k)][time] = v
                         testing_accuracy["best {}".format(k)][time] = v
+                        beat = True
                     else:
                         if v > testing_accuracy["best {}".format(k)][time]:
                             testing_accuracy["best {}".format(k)][time] = v
+            save_path = "pretrained/{}-{}-{}-{}-{}.pth".format(
+                args.exname, args.net, args.optim, args.lr, time)
+            torch.save(model.state_dict(), f=save_path)
+            print("Current model has been saved under {}.".format(save_path))
 
     # DRAW CONTINUOUS ERROR BARS
     os.makedirs("results", exist_ok=True)
+    os.makedirs("pretrained", exist_ok=True)
     visualize.ContinuousErrorBars(dicts=loss_dicts).draw(
         filename="results/loss-{}-{}-{}-{}.html".format(args.exname, args.net, args.optim, args.lr), ticksuffix="")
     visualize.ContinuousErrorBars(dicts=acc_dicts).draw(

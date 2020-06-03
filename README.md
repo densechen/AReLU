@@ -2,7 +2,17 @@
 
 Activation Function Player with PyTorch.
 
-## 1. Introduction
+## Content
+
+* 1. [Introduction](#1)
+* 2. [Install](#2)
+* 3. [run](#3)
+* 4. [Explore](#4)
+* 5. [More tasks](#5)
+* 6. [Transfer learning](#6)
+* 7. [Json to Latex](#7)
+
+##  <h2 id="1">1. Introduction</h2>
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU).
 
@@ -12,7 +22,7 @@ What's more, based on visdom and ploty, we also provide a nice visualization of 
 
 **This project is friendly to newcomers of PyTorch.**
 
-## 2. Install
+## <h2 id="2">2. Install</h2>
 
 ```shell
 conda create -n AFP python=3.7 -y
@@ -41,7 +51,7 @@ except Exception:
     raise NotImplementedError("")
 ```
 
-## 3. Run
+## <h2 id="3">3. Run</h2>
 
 ### Prepare
 
@@ -92,8 +102,8 @@ Continuous Error Bars of testing accuracy with five runs (saved under `results` 
 python main.py -h
     usage: main.py [-h] [--batch_size BATCH_SIZE] [--lr LR] [--epochs EPOCHS]
                 [--times TIMES] [--data_root DATA_ROOT]
-                [--num_workers NUM_WORKERS]
-                [--net {BaseModel,ConvMNIST,LinearMNIST}]
+                [--dataset {MNIST,SVHN}] [--num_workers NUM_WORKERS]
+                [--net {BaseModel,ConvMNIST,LinearMNIST}] [--resume RESUME]
                 [--af {APL,AReLU,GELU,Maxout,Mixture,SLAF,Swish,ReLU,ReLU6,Sigmoid,LeakyReLU,ELU,PReLU,SELU,Tanh,RReLU,CELU,Softplus,PAU,all}]
                 [--optim {SGD,Adam}] [--cuda] [--exname EXNAME]
 
@@ -108,11 +118,14 @@ python main.py -h
     --times TIMES         repeat runing times
     --data_root DATA_ROOT
                             the path to MNIST dataset
+    --dataset {MNIST,SVHN}
+                            the dataset to play with.
     --num_workers NUM_WORKERS
                             number of workers to load data
     --net {BaseModel,ConvMNIST,LinearMNIST}
                             network architecture for experiments. you can add new
                             models in ./models.
+    --resume RESUME       pretrained path to resume
     --af {APL,AReLU,GELU,Maxout,Mixture,SLAF,Swish,ReLU,ReLU6,Sigmoid,LeakyReLU,ELU,PReLU,SELU,Tanh,RReLU,CELU,Softplus,PAU,all}
                             the activation function used in experiments. you can
                             specify an activation function by name, or try with
@@ -134,7 +147,7 @@ Just run:
 
 **NOTE**: This step is time consuming.
 
-## 4. Explore
+## <h2 id="4">4. Explore</h2>
 
 ### New activation functions
 
@@ -195,7 +208,7 @@ Just run:
 
 You can modify `main.py` to try with more datasets and optimizers.
 
-## 5. More tasks
+## <h2 id="5">5. More tasks</h2>
 
 ### Classification
 
@@ -206,7 +219,15 @@ After downloading the repo, you just copy `activations` folder into repo, and mo
 
 You can refer to [Detectron2](https://github.com/facebookresearch/detectron2.git) for more experiments on segmentation. And refer to [UNet-Brain](https://github.com/mateuszbuda/brain-segmentation-pytorch.git) for a simple test with UNet on brain segmentation.
 
-## 6. Json to Latex
+## <h2 id="6">6. Transfer learning</h2>
+
+We provide a simple script to play with transfer learning between MNIST and SVHN.
+
+```shell
+./transfer_learning.sh
+```
+
+## <h2 id="7">7. Json to Latex</h2>
 
 We provide a lightly python script that can collect the json file data which generated under `result` folder to readable latex code.
 
