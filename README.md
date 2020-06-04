@@ -2,15 +2,17 @@
 
 Activation Function Player with PyTorch.
 
+![teaser](pictures/teaser.png)
+
 ## Content
 
-* 1. [Introduction](#1)
-* 2. [Install](#2)
-* 3. [Run](#3)
-* 4. [Explore](#4)
-* 5. [More tasks](#5)
-* 6. [Transfer learning](#6)
-* 7. [Json to Latex](#7)
+* [Introduction](#1)
+* [Install](#2)
+* [Run](#3)
+* [Explore](#4)
+* [More tasks](#5)
+* [Transfer learning](#6)
+* [Json to Latex](#7)
 
 ##  <h2 id="1">1. Introduction</h2>
 
