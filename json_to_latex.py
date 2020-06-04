@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description="Json to LaTex (Lightly)")
-parser.add_argument("--exname", default="AFP", help="exname to generate json")
+parser.add_argument("--exname", default="AFS", help="exname to generate json")
 parser.add_argument("--data", default="best", choices=[
                     "best", "mean", "std"], help="best: best accuracy, mean: mean accuracy, std: std of acc")
 parser.add_argument("--epoch", default="first epoch",

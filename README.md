@@ -6,7 +6,7 @@ Activation Function Player with PyTorch.
 
 * 1. [Introduction](#1)
 * 2. [Install](#2)
-* 3. [run](#3)
+* 3. [Run](#3)
 * 4. [Explore](#4)
 * 5. [More tasks](#5)
 * 6. [Transfer learning](#6)
@@ -16,9 +16,9 @@ Activation Function Player with PyTorch.
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU).
 
-While developing, we found that this repo is quite convenient for people to do experiments with different activation functions, learning ratings, optimizers and network structures. 
+While developing, we found that this repo is quite convenient for people doing experiments with different activation functions, datasets, learning ratings, optimizers and network structures. 
 It is easy for us to add new activation functions and network structures into program. 
-What's more, based on visdom and ploty, we also provide a nice visualization of training process and testing results.
+What's more, based on visdom and ploty, a nice visualization of training procedure and testing accuracy has been provided.
 
 **This project is friendly to newcomers of PyTorch.**
 
@@ -105,7 +105,8 @@ python main.py -h
                 [--dataset {MNIST,SVHN}] [--num_workers NUM_WORKERS]
                 [--net {BaseModel,ConvMNIST,LinearMNIST}] [--resume RESUME]
                 [--af {APL,AReLU,GELU,Maxout,Mixture,SLAF,Swish,ReLU,ReLU6,Sigmoid,LeakyReLU,ELU,PReLU,SELU,Tanh,RReLU,CELU,Softplus,PAU,all}]
-                [--optim {SGD,Adam}] [--cuda] [--exname EXNAME]
+                [--optim {SGD,Adam}] [--cuda]
+                [--exname {AFS,TransferLearningPretrain,TransferLearningFinetune}]
 
     Activation Player with PyTorch.
 
@@ -117,7 +118,7 @@ python main.py -h
     --epochs EPOCHS       training epochs
     --times TIMES         repeat runing times
     --data_root DATA_ROOT
-                            the path to MNIST dataset
+                            the path to dataset
     --dataset {MNIST,SVHN}
                             the dataset to play with.
     --num_workers NUM_WORKERS
@@ -132,7 +133,8 @@ python main.py -h
                             all activation functions by `all`
     --optim {SGD,Adam}    optimizer used in training.
     --cuda                with cuda training. this would be much faster.
-    --exname EXNAME       experiment name of visdom.
+    --exname {AFS,TransferLearningPretrain,TransferLearningFinetune}
+                            experiment name of visdom.
 ```
 
 ### Full training
@@ -199,7 +201,7 @@ Just run:
 2. Import new network structure in [models/\_\_init\_\_/py](models/__init__.py), like:
 
     ```python
-    from .linear import LinearMNIST
+    from .conv import ConvMNIST
     ```
 
 3. Enjoy it!

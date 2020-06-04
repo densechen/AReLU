@@ -5,11 +5,11 @@ import torch.nn.functional as F
 
 
 class LinearMNIST(BaseModel):
-    def __init__(self, activation: nn.Module):
+    def __init__(self, activation: nn.Module, in_ch: int=1):
         super().__init__(activation)
 
         self.linear1 = nn.Sequential(
-            nn.Linear(28 * 28, 512),
+            nn.Linear(in_ch * 28 * 28, 512),
             activation(),
         )
 

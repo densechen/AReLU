@@ -14,11 +14,11 @@ def conv_block(in_plane, out_plane, kernel_size, activation):
 
 
 class ConvMNIST(BaseModel):
-    def __init__(self, activation: nn.Module):
+    def __init__(self, activation: nn.Module, in_ch: int=1):
         super().__init__(activation)
 
         self.conv_block1 = conv_block(
-            1, 10, kernel_size=5, activation=activation)
+            in_ch, 10, kernel_size=5, activation=activation)
         self.conv_block2 = conv_block(
             10, 20, kernel_size=5, activation=activation)
         self.conv_block3 = conv_block(

@@ -18,7 +18,8 @@ import visualize
 AFS = list(activations.__class_dict__.keys())
 MODELS = list(models.__class_dict__.keys())
 
-parser = argparse.ArgumentParser(description="Activation Player with PyTorch.")
+parser = argparse.ArgumentParser(
+    description="Activation Function Player with PyTorch.")
 parser.add_argument("--batch_size", default=128, type=int,
                     help="batch size for training")
 parser.add_argument("--lr", default=1e-5, type=float, help="learning rate")
@@ -40,7 +41,7 @@ parser.add_argument("--optim", default="Adam", type=str, choices=["SGD", "Adam"]
                     help="optimizer used in training.")
 parser.add_argument("--cuda", action="store_true", default=False,
                     help="with cuda training. this would be much faster.")
-parser.add_argument("--exname", default="AFS",
+parser.add_argument("--exname", default="AFS", choices=["AFS", "TransferLearningPretrain", "TransferLearningFinetune"],
                     help="experiment name of visdom.")
 args = parser.parse_args()
 
@@ -48,16 +49,39 @@ args.cuda = True
 
 # 1. BUILD DATASET
 if args.dataset == "MNIST":
-    train_dataset = datasets.MNIST(
-        root=args.data_root, train=True, transform=transforms.ToTensor(), download=True)
-    test_dataset = datasets.MNIST(
-        root=args.data_root, train=False, transform=transforms.ToTensor())
+    if args.exname == "AFS":
+        train_dataset = datasets.MNIST(
+            root=args.data_root, train=True, transform=transforms.ToTensor(), download=True)
+        test_dataset = datasets.MNIST(
+            root=args.data_root, train=False, transform=transforms.ToTensor())
+    else:
+        from PIL import ImageOps
+
+        def _colorize_grayscale_image(image):
+            return ImageOps.colorize(image, (0, 0, 0), (255, 255, 255))
+        _MNIST_COLORIZED_TRAIN_TRANSFORMS = _MNIST_COLORIZED_TEST_TRANSFORMS = [
+            transforms.ToTensor(),
+            transforms.ToPILImage(),
+            transforms.Lambda(lambda x: _colorize_grayscale_image(x)),
+            transforms.ToTensor(),
+        ]
+        train_dataset = datasets.MNIST(
+            root=args.data_root, train=True, transform=transforms.Compose(_MNIST_COLORIZED_TRAIN_TRANSFORMS), download=True
+        )
+        test_dataset = datasets.MNIST(
+            root=args.data_root, train=False, transform=transforms.Compose(_MNIST_COLORIZED_TEST_TRANSFORMS), download=True)
 elif args.dataset == "SVHN":
+    _SVHN_TRAIN_TRANSFORMS = _SVHN_TEST_TRANSFORMS = [
+        transforms.ToTensor(),
+        transforms.ToPILImage(),
+        transforms.CenterCrop(28),
+        transforms.ToTensor(),
+    ]
     train_dataset = datasets.SVHN(
-        root=args.data_root, split="train", transform=transforms.ToTensor(), target_transform=transforms.Lambda(lambda y: y % 10), download=True
+        root=args.data_root, split="train", transform=transforms.Compose(_SVHN_TRAIN_TRANSFORMS), target_transform=transforms.Lambda(lambda y: y % 10), download=True
     )
-    test_dataset = datasets.SVHN(root=args.data_root, split="test", transform=transforms.ToTensor(
-    ), target_transform=transforms.Lambda(lambda y: y % 10), download=True)
+    test_dataset = datasets.SVHN(root=args.data_root, split="test", transform=transforms.Compose(_SVHN_TEST_TRANSFORMS),
+                                 target_transform=transforms.Lambda(lambda y: y % 10), download=True)
 
 train_dataloader = torch.utils.data.DataLoader(
     train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False, num_workers=args.num_workers, pin_memory=True)
@@ -70,9 +94,9 @@ def define_model_optimizer():
     afs = AFS if args.af == "all" else [args.af]
 
     assert "PAU" in afs and args.cuda or "PAU" not in afs, "PAU need cuda! You can skip the PAU actication functions if you don't have a cuda."
-
+    in_ch = 1 if args.dataset == "MNIST" and args.exname == "AFS" else 3
     model = {af: models.__class_dict__[args.net](
-        activations.__class_dict__[af]) for af in afs}
+        activations.__class_dict__[af], in_ch) for af in afs}
     model = nn.ModuleDict(model)
 
     if args.resume is not None:
@@ -129,6 +153,8 @@ def test(model):
 
 
 if __name__ == "__main__":
+    os.makedirs("results", exist_ok=True)
+    os.makedirs("pretrained", exist_ok=True)
     model, _ = define_model_optimizer()
     testing_accuracy = dict()
     loss_dicts = dict()
@@ -173,8 +199,7 @@ if __name__ == "__main__":
             print("Current model has been saved under {}.".format(save_path))
 
     # DRAW CONTINUOUS ERROR BARS
-    os.makedirs("results", exist_ok=True)
-    os.makedirs("pretrained", exist_ok=True)
+
     visualize.ContinuousErrorBars(dicts=loss_dicts).draw(
         filename="results/loss-{}-{}-{}-{}.html".format(args.exname, args.net, args.optim, args.lr), ticksuffix="")
     visualize.ContinuousErrorBars(dicts=acc_dicts).draw(
