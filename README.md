@@ -66,7 +66,7 @@ Now, you can click [here](http://localhost:8097/) to check your training loss an
 
 ![visdom](pictures/visdom.png)
 
-**NOTE**: Don't worry about training data. The program will download the MNIST dataset while runtime and save it under `args.data_root`
+**NOTE**: Don't worry about training data. The program will download dataset while runtime and save it under `args.data_root`
 
 ### Quick start
 
