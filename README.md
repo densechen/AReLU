@@ -252,3 +252,15 @@ python json_to_latex.py -h
                             which epoch to load.
     --output OUTPUT       output filename
 ```
+
+## Citation
+If you use this code, please cite the following paper:
+```
+@misc{AReLU,
+Author = {Dengsheng Chen and Kai Xu},
+Title = {AReLU: Attention-based Rectified Linear Unit},
+Year = {2020},
+Eprint = {arXiv:2006.13858},
+}
+```
+
