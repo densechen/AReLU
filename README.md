@@ -16,7 +16,7 @@ Activation Function Player with PyTorch.
 
 ##  <h2 id="1">1. Introduction</h2>
 
-This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](AReLU).
+This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
 
 While developing, we found that this repo is quite convenient for people doing experiments with different activation functions, datasets, learning ratings, optimizers and network structures. 
 It is easy for us to add new activation functions and network structures into program. 
