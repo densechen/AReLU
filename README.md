@@ -22,7 +22,7 @@ While developing, we found that this repo is quite convenient for people doing e
 It is easy for us to add new activation functions and network structures into program. 
 What's more, based on visdom and ploty, a nice visualization of training procedure and testing accuracy has been provided.
 
-**This project is friendly to newcomers of PyTorch.**
+**This project is friendly to newcomers of PyTorch.** You can refer to [here](https://blog.csdn.net/u010626747/article/details/107062960/) for an unofficial implementation with TensorFlow of AReLU.
 
 ## <h2 id="2">2. Install</h2>
 
