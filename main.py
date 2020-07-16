@@ -14,6 +14,7 @@ from tqdm import tqdm
 import activations
 import models
 import visualize
+import utils
 
 AFS = list(activations.__class_dict__.keys())
 MODELS = list(models.__class_dict__.keys())
@@ -23,13 +24,19 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--batch_size", default=128, type=int,
                     help="batch size for training")
 parser.add_argument("--lr", default=1e-5, type=float, help="learning rate")
-parser.add_argument("--epochs", default=20, type=int, help="training epochs")
-parser.add_argument("--times", default=5, type=int,
+parser.add_argument("--lr_aux", default=1e-5, type=float,
+                    help="learning rate of finetune. only used while transfer learning.")
+parser.add_argument("--epochs", default=2, type=int, help="training epochs")
+parser.add_argument("--epochs_aux", default=2, type=int,
+                    help="training epochs. only used while transfer learning.")
+parser.add_argument("--times", default=2, type=int,
                     help="repeat runing times")
 parser.add_argument("--data_root", default="data", type=str,
                     help="the path to dataset")
 parser.add_argument("--dataset", default="MNIST",
-                    choices=["MNIST", "SVHN"], help="the dataset to play with.")
+                    choices=utils._DATASET_CHANNELS.keys(), help="the dataset to play with.")
+parser.add_argument("--dataset_aux", default="SVHN", choices=utils._DATASET_CHANNELS.keys(),
+                    help="the dataset to play with. only used while transfer learning.")
 parser.add_argument("--num_workers", default=2, type=int,
                     help="number of workers to load data")
 parser.add_argument("--net", default="ConvMNIST", choices=MODELS,
@@ -37,90 +44,36 @@ parser.add_argument("--net", default="ConvMNIST", choices=MODELS,
 parser.add_argument("--resume", default=None, help="pretrained path to resume")
 parser.add_argument("--af", default="all", choices=AFS +
                     ["all"], help="the activation function used in experiments. you can specify an activation function by name, or try with all activation functions by `all`")
-parser.add_argument("--optim", default="Adam", type=str, choices=["SGD", "Adam"],
+parser.add_argument("--optim", default="SGD", type=str, choices=["SGD", "Adam"],
                     help="optimizer used in training.")
-parser.add_argument("--cuda", action="store_true", default=False,
+parser.add_argument("--cpu", action="store_true", default=False,
                     help="with cuda training. this would be much faster.")
-parser.add_argument("--exname", default="AFS", choices=["AFS", "TransferLearningPretrain", "TransferLearningFinetune"],
+parser.add_argument("--exname", default="AFS", choices=["AFS", "TransferLearning"],
                     help="experiment name of visdom.")
+parser.add_argument("--silent", action="store_true", default=False,
+                    help="if True, shut down the visdom visualizer.")
 args = parser.parse_args()
 
-args.cuda = True
-
 # 1. BUILD DATASET
-if args.dataset == "MNIST":
-    if args.exname == "AFS":
-        train_dataset = datasets.MNIST(
-            root=args.data_root, train=True, transform=transforms.ToTensor(), download=True)
-        test_dataset = datasets.MNIST(
-            root=args.data_root, train=False, transform=transforms.ToTensor())
-    else:
-        from PIL import ImageOps
-
-        def _colorize_grayscale_image(image):
-            return ImageOps.colorize(image, (0, 0, 0), (255, 255, 255))
-        _MNIST_COLORIZED_TRAIN_TRANSFORMS = _MNIST_COLORIZED_TEST_TRANSFORMS = [
-            transforms.ToTensor(),
-            transforms.ToPILImage(),
-            transforms.Lambda(lambda x: _colorize_grayscale_image(x)),
-            transforms.ToTensor(),
-        ]
-        train_dataset = datasets.MNIST(
-            root=args.data_root, train=True, transform=transforms.Compose(_MNIST_COLORIZED_TRAIN_TRANSFORMS), download=True
-        )
-        test_dataset = datasets.MNIST(
-            root=args.data_root, train=False, transform=transforms.Compose(_MNIST_COLORIZED_TEST_TRANSFORMS), download=True)
-elif args.dataset == "SVHN":
-    _SVHN_TRAIN_TRANSFORMS = _SVHN_TEST_TRANSFORMS = [
-        transforms.ToTensor(),
-        transforms.ToPILImage(),
-        transforms.CenterCrop(28),
-        transforms.ToTensor(),
-    ]
-    train_dataset = datasets.SVHN(
-        root=args.data_root, split="train", transform=transforms.Compose(_SVHN_TRAIN_TRANSFORMS), target_transform=transforms.Lambda(lambda y: y % 10), download=True
-    )
-    test_dataset = datasets.SVHN(root=args.data_root, split="test", transform=transforms.Compose(_SVHN_TEST_TRANSFORMS),
-                                 target_transform=transforms.Lambda(lambda y: y % 10), download=True)
-
-train_dataloader = torch.utils.data.DataLoader(
-    train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False, num_workers=args.num_workers, pin_memory=True)
-test_dataloader = torch.utils.data.DataLoader(
-    test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False, num_workers=args.num_workers, pin_memory=True)
-
-
-def define_model_optimizer():
-    # 2. DEFINE MODELS
-    afs = AFS if args.af == "all" else [args.af]
-
-    assert "PAU" in afs and args.cuda or "PAU" not in afs, "PAU need cuda! You can skip the PAU actication functions if you don't have a cuda."
-    in_ch = 1 if args.dataset == "MNIST" and args.exname == "AFS" else 3
-    model = {af: models.__class_dict__[args.net](
-        activations.__class_dict__[af], in_ch) for af in afs}
-    model = nn.ModuleDict(model)
-
-    if args.resume is not None:
-        model.load_state_dict(torch.load(args.resume), strict=True)
-        print("Load pretrianed model from {}".format(args.resume))
-
-    model = model.cuda() if args.cuda else model
-
-    # 3. DEFINE OPTIMIZER
-    optimizer = optim.SGD(model.parameters(
-    ), lr=args.lr, momentum=0.9) if args.optim == "SGD" else optim.Adam(model.parameters(), lr=args.lr)
-    return model, optimizer
+if args.exname == "AFS":
+    train_dataloader, test_dataloader = utils.get_loader(args)
+elif args.exname == "TransferLearning":
+    train_dataloader, test_dataloader, train_dataloader_aux, test_dataloader_aux = utils.get_loader(
+        args)
+else:
+    raise ValueError
 
 # 4. TRAIN
 
 
-def train(model, optimizer):
+def train(model, optimizer, dataloader):
     model.train()
-    process = tqdm(train_dataloader)
+    process = tqdm(dataloader)
     loss_dict = {k: [] for k in model.keys()}
     for data, target in process:
         optimizer.zero_grad()
-        data = Variable(data).cuda() if args.cuda else Variable(data)
-        target = Variable(target).cuda() if args.cuda else Variable(target)
+        data = Variable(data).cuda() if not args.cpu else Variable(data)
+        target = Variable(target).cuda() if not args.cpu else Variable(target)
 
         for k, v in model.items():
             loss = F.nll_loss(v(data), target)
@@ -134,85 +87,53 @@ def train(model, optimizer):
 # 5. TEST
 
 
-def test(model):
+def test(model, dataloader):
     model.eval()
     correct = {k: 0.0 for k in model.keys()}
-    process = tqdm(test_dataloader)
+    process = tqdm(dataloader)
     for data, target in process:
-        data = Variable(data).cuda() if args.cuda else Variable(data)
-        target = Variable(target).cuda() if args.cuda else Variable(target)
+        data = Variable(data).cuda() if not args.cpu else Variable(data)
+        target = Variable(target).cuda() if not args.cpu else Variable(target)
 
         for k, v in model.items():
             pred = v(data).max(1, keepdim=True)[1]
             correct[k] += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     for k, v in correct.items():
-        correct[k] = float(100.0 * v / float(len(test_dataset)))
+        correct[k] = float(100.0 * v / float(len(dataloader.dataset)))
 
     return correct
 
 
+def forward_epoch(model, optimizer, state_keeper, time, epochs):
+    for epoch in range(1, epochs + 1):
+        loss_dict = train(model, optimizer, train_dataloader)
+        with torch.no_grad():
+            correct = test(model, test_dataloader)
+
+        state_keeper.update(time, epoch, loss_dict, correct)
+
+        save_path = "pretrained/{}-{}-{}-{}-{}.pth".format(
+            args.exname, args.net, args.optim, args.lr, time)
+        torch.save(model.state_dict(), f=save_path)
+        print("Current model has been saved under {}.".format(save_path))
+
+
 if __name__ == "__main__":
-    os.makedirs("results", exist_ok=True)
-    os.makedirs("pretrained", exist_ok=True)
-    model, _ = define_model_optimizer()
-    testing_accuracy = dict()
-    loss_dicts = dict()
-    acc_dicts = dict()
-    for k in model.keys():
-        testing_accuracy["first epoch {}".format(k)] = np.zeros(args.times)
-        testing_accuracy["best {}".format(k)] = np.zeros(args.times)
-        loss_dicts[k] = [[] for _ in range(args.times)]
-        acc_dicts[k] = [[] for _ in range(args.times)]
-    del model
+    state_keeper = utils.StateKeeper(args)
+    if args.exname == "TransferLearning":
+        state_keeper_aux = utils.StateKeeper(args, state_keeper_name="aux")
 
     for time in range(args.times):
-        model, optimizer = define_model_optimizer()
-        for epoch in range(1, args.epochs + 1):
-            loss_dict = train(model, optimizer)
+        model = utils.get_model(args)
+        optimizer = utils.get_optimizer(args.optim, args.lr, model)
+        forward_epoch(model, optimizer, state_keeper, time, args.epochs)
+        if args.exname == "TransferLearning":
+            optimizer_aux = utils.get_optimizer(
+                args.optim, args.lr_aux, model)
+            forward_epoch(model, optimizer_aux, state_keeper_aux, time, args.epochs_aux)
 
-            visualize.visualize_losses(loss_dict, title="Loss", env=args.exname +
-                                       "-{}-{}-{}_{}".format(args.net, args.optim, args.lr, time), epoch=epoch)
-
-            for k in loss_dicts.keys():
-                loss_dicts[k][time].append(loss_dict[k])
-
-            with torch.no_grad():
-                correct = test(model)
-                visualize.visualize_accuracy(
-                    correct, title="Accuracy", env=args.exname+"-{}-{}-{}_{}".format(args.net, args.optim, args.lr, time), epoch=epoch)
-                # LOG
-                for k in acc_dicts.keys():
-                    acc_dicts[k][time].append(correct[k])
-
-                for k, v in correct.items():
-                    if epoch == 1:
-                        testing_accuracy["first epoch {}".format(k)][time] = v
-                        testing_accuracy["best {}".format(k)][time] = v
-                        beat = True
-                    else:
-                        if v > testing_accuracy["best {}".format(k)][time]:
-                            testing_accuracy["best {}".format(k)][time] = v
-            save_path = "pretrained/{}-{}-{}-{}-{}.pth".format(
-                args.exname, args.net, args.optim, args.lr, time)
-            torch.save(model.state_dict(), f=save_path)
-            print("Current model has been saved under {}.".format(save_path))
-
-    # DRAW CONTINUOUS ERROR BARS
-
-    visualize.ContinuousErrorBars(dicts=loss_dicts).draw(
-        filename="results/loss-{}-{}-{}-{}.html".format(args.exname, args.net, args.optim, args.lr), ticksuffix="")
-    visualize.ContinuousErrorBars(dicts=acc_dicts).draw(
-        filename="results/acc-{}-{}-{}-{}.html".format(args.exname, args.net, args.optim, args.lr), ticksuffix="%")
-
-    # CALCULATE STATIC
-    accuracy = dict()
-    for k, v in testing_accuracy.items():
-        accuracy["{} mean".format(k)] = np.mean(v)
-        accuracy["{} std".format(k)] = np.std(v)
-        accuracy["{} best".format(k)] = np.max(v)
-
-    with open("results/{}-{}-{}-{}.json".format(args.exname, args.net, args.optim, args.lr), "w") as f:
-        json.dump(accuracy, f, indent=4)
-
+    state_keeper.save()
+    if args.exname == "TransferLearning":
+        state_keeper_aux.save()
     print("Done!")
