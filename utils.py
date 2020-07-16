@@ -200,8 +200,9 @@ class StateKeeper(object):
     def update(self, time, epoch, loss_dicts, acc_dicts):
         args = self.args
 
-        env_name = args.exname + "-{}-{}-{}-{}_{}".format(self.state_keeper_name,
-                                                          args.net, args.optim, args.lr, time)
+        env_name = "{state_keeper_name}.{prefix}_{time}".format(
+            state_keeper_name=self.state_keeper_name, prefix=args.prefix, time=time)
+
         # VISUALIZE FIRST
         if not args.silent:
             visualize.visualize_losses(
@@ -229,9 +230,9 @@ class StateKeeper(object):
 
         # DRAW CONTINUOUS ERROR BARS
         visualize.ContinuousErrorBars(dicts=self.loss_dicts).draw(
-            filename="results/loss-{}{}-{}-{}-{}.html".format(args.exname, self.state_keeper_name, args.net, args.optim, args.lr), ticksuffix="")
+            filename="results/loss.{prefix}.html".format(prefix=args.prefix), ticksuffix="")
         visualize.ContinuousErrorBars(dicts=self.acc_dicts).draw(
-            filename="results/acc-{}{}-{}-{}-{}.html".format(args.exname, self.state_keeper_name, args.net, args.optim, args.lr), ticksuffix="%")
+            filename="results/acc.{prefix}.html".format(prefix=args.prefix), ticksuffix="%")
 
         # CALCULATE STATIC
         accuracy = dict()
@@ -240,5 +241,5 @@ class StateKeeper(object):
             accuracy["{} std".format(k)] = np.std(v)
             accuracy["{} best".format(k)] = np.max(v)
 
-        with open("results/{}{}-{}-{}-{}.json".format(args.exname, self.state_keeper_name, args.net, args.optim, args.lr), "w") as f:
+        with open("results/{state_keeper_name}.{prefix}.json".format(state_keeper_name=self.state_keeper_name, prefix=args.prefix), "w") as f:
             json.dump(accuracy, f, indent=4)

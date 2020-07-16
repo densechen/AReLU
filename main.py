@@ -53,6 +53,10 @@ parser.add_argument("--exname", default="AFS", choices=["AFS", "TransferLearning
 parser.add_argument("--silent", action="store_true", default=False,
                     help="if True, shut down the visdom visualizer.")
 args = parser.parse_args()
+args.prefix = "{exname}.{dataset}.{dataset_aux}.{net}.{af}.{optim}.{lr}.{lr_aux}.{epochs}.{epochs_aux}.{batch_size}".format(
+    exname=args.exname, dataset=args.dataset, dataset_aux=args.dataset_aux, net=args.net, af=args.af, optim=args.optim,
+    lr=args.lr, lr_aux=args.lr_aux, epochs=args.epochs, epochs_aux=args.epochs_aux, batch_size=args.batch_size
+)
 
 # 1. BUILD DATASET
 if args.exname == "AFS":
@@ -100,7 +104,7 @@ def test(model, dataloader):
             correct[k] += pred.eq(target.data.view_as(pred)).cpu().sum()
 
     for k, v in correct.items():
-        correct[k] = float(100.0 * v / float(len(dataloader.dataset)))
+        correct[k] = float(100.0 * v / len(dataloader.dataset))
 
     return correct
 
@@ -113,8 +117,8 @@ def forward_epoch(model, optimizer, state_keeper, time, epochs):
 
         state_keeper.update(time, epoch, loss_dict, correct)
 
-        save_path = "pretrained/{}-{}-{}-{}-{}.pth".format(
-            args.exname, args.net, args.optim, args.lr, time)
+        save_path = "pretrained/{prefix}.{time}.pth".format(
+            prefix=args.prefix, time=time)
         torch.save(model.state_dict(), f=save_path)
         print("Current model has been saved under {}.".format(save_path))
 
@@ -131,7 +135,8 @@ if __name__ == "__main__":
         if args.exname == "TransferLearning":
             optimizer_aux = utils.get_optimizer(
                 args.optim, args.lr_aux, model)
-            forward_epoch(model, optimizer_aux, state_keeper_aux, time, args.epochs_aux)
+            forward_epoch(model, optimizer_aux, state_keeper_aux,
+                          time, args.epochs_aux)
 
     state_keeper.save()
     if args.exname == "TransferLearning":
