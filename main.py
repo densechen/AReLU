@@ -109,7 +109,7 @@ def test(model, dataloader):
     return correct
 
 
-def forward_epoch(model, optimizer, state_keeper, time, epochs):
+def forward_epoch(model, train_dataloader, test_dataloader, optimizer, state_keeper, time, epochs):
     for epoch in range(1, epochs + 1):
         loss_dict = train(model, optimizer, train_dataloader)
         with torch.no_grad():
@@ -131,11 +131,12 @@ if __name__ == "__main__":
     for time in range(args.times):
         model = utils.get_model(args)
         optimizer = utils.get_optimizer(args.optim, args.lr, model)
-        forward_epoch(model, optimizer, state_keeper, time, args.epochs)
+        forward_epoch(model, train_dataloader, test_dataloader,
+                      optimizer, state_keeper, time, args.epochs)
         if args.exname == "TransferLearning":
             optimizer_aux = utils.get_optimizer(
                 args.optim, args.lr_aux, model)
-            forward_epoch(model, optimizer_aux, state_keeper_aux,
+            forward_epoch(model, train_dataloader_aux, test_dataloader_aux, optimizer_aux, state_keeper_aux,
                           time, args.epochs_aux)
 
     state_keeper.save()

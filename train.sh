@@ -9,5 +9,9 @@ python main.py --batch_size 128 --lr 1e-4 --epochs 20 --times 5 --data_root data
 
 # Transfer Learning
 # MNIST -> SVHN
-python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 20 --epochs_aux 200 --times 5 --data_root data --dataset MNIST --dataset_aux SVHN --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
-python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 20 --epochs_aux 200 --times 5 --data_root data --dataset SVHN --dataset_aux MNIST --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
+python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 5 --epochs_aux 100 --times 5 --data_root data --dataset MNIST --dataset_aux SVHN --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
+python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 5 --epochs_aux 100 --times 5 --data_root data --dataset SVHN --dataset_aux MNIST --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
+
+
+python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 10 --epochs_aux 100 --times 5 --data_root data --dataset MNIST --dataset_aux SVHN --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
+python main.py --batch_size 128 --lr 1e-2 --lr_aux 1e-5 --epochs 10 --epochs_aux 100 --times 5 --data_root data --dataset SVHN --dataset_aux MNIST --num_workers 2 --net ConvMNIST --af all --optim SGD --exname TransferLearning
