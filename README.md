@@ -10,18 +10,14 @@ Activation Function Player with PyTorch for supervised learning and transfer lea
 * [Install](#2)
 * [Run](#3)
 * [Explore](#4)
-* [More tasks](#5)
-* [Json to Latex](#6)
 
 ##  <h2 id="1">1. Introduction</h2>
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
 
-While developing, we found that this repo is quite convenient for people doing experiments with different activation functions, datasets, learning ratings, optimizers and network structures. 
-It is easy for us to add new activation functions and network structures into program. 
-What's more, based on visdom and ploty, a nice visualization of training procedure and testing accuracy has been provided.
+**This project is friendly to newcomers of PyTorch.**
 
-**This project is friendly to newcomers of PyTorch.** You can refer to [here](https://blog.csdn.net/u010626747/article/details/107062960/) for an unofficial implementation with TensorFlow of AReLU.
+With this repository, you can design and compare different activation functions on **transfer learning**.
 
 ## <h2 id="2">2. Install</h2>
 
@@ -54,50 +50,16 @@ except Exception:
 
 ## <h2 id="3">3. Run</h2>
 
-### Prepare
-
-We use visdom to visualize training process. 
-Before training, please setup visdom server:
-
 ```shell
-python -m visdom.server &
+python -m visdom.server & # start visdom
+python main.py # run with default parameters
 ```
 
-Now, you can click [here](http://localhost:8097/) to check your training loss and testing accuracy while runtime.
+Click [here](https://localhost:8097/) to check your training process.
 
-![visdom](pictures/visdom.png)
+**NOTE**: The program will download and save dataset under args.data_root automatically.
 
-**NOTE**: Don't worry about training data. The program will download dataset while runtime and save it under `args.data_root`
-
-### Quick start
-
-If you want to have a quick start with default parameters, just run:
-
-```shell
-python main.py
-```
-
-We plot the Continuous Error Bars with ploty and save it as a html file under `results` folder. 
-A json file which records same static data is also generated and saved under `results`.
-
-Training loss (visualzie on visdom: [http://localhost:8097/](http://localhost:8097/)):
-
-![loss](pictures/loss.png)
-
-Testing accuracy (visualize on visdom: [http://localhost:8097/](http://localhost:8097/)):
-
-![acc](pictures/acc.png)
-
-Continuous Error Bars of training loss with five runs (saved under `results` as html file):
-
-![loss_ceb](pictures/loss_ceb.png)
-
-Continuous Error Bars of testing accuracy with five runs (saved under `results` as html file):
-
-![acc_ceb](pictures/acc_ceb.png)
-
-
-### Run with different parameters
+**Run with specified parameters**
 
 ```shell
     python main.py -h
@@ -149,122 +111,30 @@ Continuous Error Bars of testing accuracy with five runs (saved under `results` 
         --silent              if True, shut down the visdom visualizer.
 ```
 
-### Full training
-
-We provide a script for doing a full training. Just run:
+**Full Experiment**
 
 ```shell
 ./train.sh
 ```
-
 **NOTE**: This step is time consuming.
+
+![result](pictures/result.png)
 
 ## <h2 id="4">4. Explore</h2>
 
-### New activation functions
+**New activation functions**
 
-1. write a python script file under `activations`, such as *new_activation_functions.py*, where contains the implementation of new activation function.
+1. Write a python script file under `activations`, such as *new_activation_functions.py*, where contains the implementation of new activation function.
 
-2. import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py), like:
+2. Import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py).
 
-    ```python
-    from .new_activation_functions import NewActivationFunctions
-    ```
+**New network structure**
 
-3. Enjoy it!
+1. Write a python script file under `models`, such as *new_network_structure.py*, where contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`.
 
-### New network structure
+2. Import new network structure in [models/\_\_init\_\_.py](models/__init__.py).
 
-1. Write a python script file under `models`, such as *new_network_structure.py*, where contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`. Such as:
-
-    ```python
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    from models import BaseModel
-
-
-    def conv_block(in_plane, out_plane, kernel_size, activation):
-        return nn.Sequential(
-            nn.Conv2d(in_channels=in_plane, out_channels=out_plane,
-                    kernel_size=kernel_size),
-            nn.MaxPool2d(2),
-            activation(),
-        )
-
-
-    class ConvMNIST(BaseModel):
-        def __init__(self, activation: nn.Module, in_ch: int=1):
-            super().__init__(activation)
-
-            self.conv_block1 = conv_block(
-                in_ch, 10, kernel_size=5, activation=activation)
-            self.conv_block2 = conv_block(
-                10, 20, kernel_size=5, activation=activation)
-            self.conv_block3 = conv_block(
-                20, 40, kernel_size=3, activation=activation)
-
-            self.fc = nn.Sequential(
-                nn.Linear(40, 10),
-                nn.LogSoftmax(dim=-1),
-            )
-
-        def forward(self, x):
-            x = self.conv_block1(x)
-            x = self.conv_block2(x)
-            x = self.conv_block3(x)
-
-            x = x.view(-1, 40)
-
-            x = self.fc(x)
-
-            return x
-    ```
-
-2. Import new network structure in [models/\_\_init\_\_/py](models/__init__.py), like:
-
-    ```python
-    from .conv import ConvMNIST
-    ```
-
-3. Enjoy it!
-
-### More
-
-You can modify `main.py` to try with more datasets and optimizers.
-
-## <h2 id="5">5. More tasks</h2>
-
-### Classification
-
-You can refer to [CIFAR10](https://github.com/kuangliu/pytorch-cifar.git) and [CIFAR100](https://github.com/weiaicunzai/pytorch-cifar100.git) for more experiments with popular network structures.
-After downloading the repo, you just copy `activations` folder into repo, and modify some code.
-
-### Segmentation
-
-You can refer to [Detectron2](https://github.com/facebookresearch/detectron2.git) for more experiments on segmentation. And refer to [UNet-Brain](https://github.com/mateuszbuda/brain-segmentation-pytorch.git) for a simple test with UNet on brain segmentation.
-
-## <h2 id="6">6. Json to Latex</h2>
-
-We provide a lightly python script that can collect the json file data which generated under `result` folder to readable latex code.
-
-```shell
-python json_to_latex.py -h
-    usage: json_to_latex.py [-h] [--exname EXNAME] [--data {best,mean,std}]
-                            [--epoch {first epoch,best}] [--output OUTPUT]
-
-    Json to LaTex (Lightly)
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    --exname EXNAME       exname to generate json
-    --data {best,mean,std}
-                            best: best accuracy, mean: mean accuracy, std: std of
-                            acc
-    --epoch {first epoch,best}
-                            which epoch to load.
-    --output OUTPUT       output filename
-```
+**NOTE**: New activation functions and network sctructures will be automatically added into argparse. So, it is not necessary to modify `main.py`.
 
 ## Citation
 If you use this code, please cite the following paper:
@@ -276,4 +146,3 @@ Year = {2020},
 Eprint = {arXiv:2006.13858},
 }
 ```
-
