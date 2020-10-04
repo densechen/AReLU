@@ -128,7 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-/data
+/data/
 nohup.out
 /results
 /pretrained
+/logs51/
+/logs55/

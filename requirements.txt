@@ -5,3 +5,4 @@ torchvision==0.4.2
 tqdm==4.42.1
 visdom==0.1.8.9
 visdom-plotly==0.1.6.4.4
+learn2learn # used for meta learning

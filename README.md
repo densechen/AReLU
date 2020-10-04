@@ -1,6 +1,6 @@
 # AReLU: Attention-based-Rectified-Linear-Unit
 
-Activation Function Player with PyTorch for supervised learning and transfer learning.
+Activation function player with PyTorch on supervised/transfer/meta learning.
 
 ![teaser](pictures/teaser.png)
 
@@ -10,14 +10,13 @@ Activation Function Player with PyTorch for supervised learning and transfer lea
 * [Install](#2)
 * [Run](#3)
 * [Explore](#4)
+* [Meta Learning](#5)
 
 ##  <h2 id="1">1. Introduction</h2>
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
 
-**This project is friendly to newcomers of PyTorch.**
-
-With this repository, you can design and compare different activation functions on **transfer learning**.
+**This project is friendly to newcomers of PyTorch.** You can design and compare different activation functions under different learning task.
 
 ## <h2 id="2">2. Install</h2>
 
@@ -62,8 +61,8 @@ Click [here](https://localhost:8097/) to check your training process.
 **Run with specified parameters**
 
 ```shell
-    python main.py -h
-        usage: main.py [-h] [--batch_size BATCH_SIZE] [--lr LR] [--lr_aux LR_AUX]
+    python main_mnist.py -h
+        usage: main_mnist.py [-h] [--batch_size BATCH_SIZE] [--lr LR] [--lr_aux LR_AUX]
                     [--epochs EPOCHS] [--epochs_aux EPOCHS_AUX] [--times TIMES]
                     [--data_root DATA_ROOT]
                     [--dataset {MNIST,SVHN,EMNIST,KMNIST,QMNIST,FashionMNIST}]
@@ -114,9 +113,8 @@ Click [here](https://localhost:8097/) to check your training process.
 **Full Experiment**
 
 ```shell
-./train.sh
+nohup ./main_mnist.sh > main_mnist.log &
 ```
-**NOTE**: This step is time consuming.
 
 ![result](pictures/result.png)
 
@@ -135,6 +133,47 @@ Click [here](https://localhost:8097/) to check your training process.
 2. Import new network structure in [models/\_\_init\_\_.py](models/__init__.py).
 
 **NOTE**: New activation functions and network sctructures will be automatically added into argparse. So, it is not necessary to modify `main.py`.
+
+## <h2 id="5">5. Meta Learning</h2>
+
+### Setup
+```shell
+pip install learn2learn
+```
+
+### Run
+```shell
+(base) densechen@Jun-PC:/media/densechen/新加卷1/AReLU$ python meta_mnist.py --help
+usage: meta_mnist.py [-h] [--ways N] [--shots N] [-tps N] [-fas N]
+                     [--iterations N] [--lr LR] [--maml-lr LR] [--no-cuda]
+                     [--seed S] [--download-location S]
+                     [--afs {APL,AReLU,GELU,Maxout,Mixture,SLAF,Swish,ReLU,ReLU6,Sigmoid,LeakyReLU,ELU,PReLU,SELU,Tanh,RReLU,CELU,Softplus,PAU}]
+
+Learn2Learn MNIST Example
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --ways N              number of ways (default: 5)
+  --shots N             number of shots (default: 1)
+  -tps N, --tasks-per-step N
+                        tasks per step (default: 32)
+  -fas N, --fast-adaption-steps N
+                        steps per fast adaption (default: 5)
+  --iterations N        number of iterations (default: 1000)
+  --lr LR               learning rate (default: 0.005)
+  --maml-lr LR          learning rate for MAML (default: 0.01)
+  --no-cuda             disables CUDA training
+  --seed S              random seed (default: 1)
+  --download-location S
+                        download location for train data (default : data
+  --afs {APL,AReLU,GELU,Maxout,Mixture,SLAF,Swish,ReLU,ReLU6,Sigmoid,LeakyReLU,ELU,PReLU,SELU,Tanh,RReLU,CELU,Softplus,PAU}
+                        activation function used to meta learning.
+```
+
+### Run all
+```
+nohup ./meta_mnist.sh > meta_mnist.log &
+```
 
 ## Citation
 If you use this code, please cite the following paper:
