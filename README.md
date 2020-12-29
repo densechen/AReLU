@@ -16,7 +16,7 @@ Activation function player with PyTorch on supervised/transfer/meta learning.
 
 This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
 
-**This project is friendly to newcomers of PyTorch.** You can design and compare different activation functions under different learning task.
+**This project is friendly to newcomers of PyTorch.** You can design and compare different activation functions under different learning tasks.
 
 ## <h2 id="2">2. Install</h2>
 
