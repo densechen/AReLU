@@ -37,7 +37,7 @@ python setup.py install
 
 The code of PAU is directly token from [PAU](https://github.com/ml-research/pau.git), if you occur any problems while compiling, please refer to the original repository.
 
-If you just want to have a quick start, and do not want to compile with PAU, just comment out the following lines in [activations/\_\_init\_\_.py](activations/__init__.py):
+If you just want to have a quick start, and do not want to compile with PAU, just comment out the following lines in [activations/\_\_init\_\_.py](https://github.com/densechen/AReLU/blob/6735a82da2caf68f346551fe2abb26f3bd0ccdd2/activations/__init__.py#L14):
 
 ```python
 try:
