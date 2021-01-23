@@ -15,3 +15,6 @@ try:
     __class_dict__["PAU"] = PAU
 except Exception:
     raise NotImplementedError("")
+
+
+__version__ = "0.1.0"

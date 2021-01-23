@@ -18,7 +18,16 @@ This repository is the implementation of paper [AReLU: Attention-based-Rectified
 
 **This project is friendly to newcomers of PyTorch.** You can design and compare different activation functions under different learning tasks.
 
+
 ## <h2 id="2">2. Install</h2>
+
+### Install activations as package
+
+```shell
+pip install activations
+```
+
+### Install this project
 
 ```shell
 conda create -n AFP python=3.7 -y
