@@ -14,7 +14,8 @@ try:
     from .pau.utils import PAU
     __class_dict__["PAU"] = PAU
 except Exception:
-    raise NotImplementedError("")
+    # raise NotImplementedError("")
+    pass
 
 
 __version__ = "0.1.0"

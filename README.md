@@ -4,38 +4,36 @@ Activation function player with PyTorch on supervised/transfer/meta learning.
 
 ![teaser](pictures/teaser.png)
 
-## Content
+## Introduction
 
-* [Introduction](#1)
-* [Install](#2)
-* [Run](#3)
-* [Explore](#4)
-* [Meta Learning](#5)
+This repository contains the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
 
-##  <h2 id="1">1. Introduction</h2>
+Any contribution is welcome! If you have found some new activations, please open a new issue and I will add it into this project ASAP.
 
-This repository is the implementation of paper [AReLU: Attention-based-Rectified-Linear-Unit](https://arxiv.org/pdf/2006.13858.pdf).
+## Install
 
-**This project is friendly to newcomers of PyTorch.** You can design and compare different activation functions under different learning tasks.
-
-
-## <h2 id="2">2. Install</h2>
-
-### Install activations as package
+### From PyPi
 
 ```shell
 pip install activations
+
+# check installation
+python -c "import activations; print(activations.__version__)"
 ```
 
-### Install this project
+activations package only contains different activation functions under `activations`.
+If you want to do full experiments, please use the following way.
+
+### From GitHub
 
 ```shell
-conda create -n AFP python=3.7 -y
-conda activate AFP
+git clone https://github.com/densechen/AReLU
+cd AReLU
 pip install -r requirements.txt
+# or `python setup.py install` for basic usage of package `activations`.
 ```
 
-**NOTE**: PAU is only CUDA supported. You have to compile it first:
+**with PAU**: PAU is only CUDA supported. You have to compile it manaully:
 
 ```shell
 pip install airspeed==0.5.14 
@@ -46,17 +44,7 @@ python setup.py install
 
 The code of PAU is directly token from [PAU](https://github.com/ml-research/pau.git), if you occur any problems while compiling, please refer to the original repository.
 
-If you just want to have a quick start, and do not want to compile with PAU, just comment out the following lines in [activations/\_\_init\_\_.py](https://github.com/densechen/AReLU/blob/6735a82da2caf68f346551fe2abb26f3bd0ccdd2/activations/__init__.py#L14):
-
-```python
-try:
-    from .pau.utils import PAU
-    __class_dict__["PAU"] = PAU
-except Exception:
-    raise NotImplementedError("")
-```
-
-## <h2 id="3">3. Run</h2>
+## Classification
 
 ```shell
 python -m visdom.server & # start visdom
@@ -64,10 +52,6 @@ python main.py # run with default parameters
 ```
 
 Click [here](https://localhost:8097/) to check your training process.
-
-**NOTE**: The program will download and save dataset under args.data_root automatically.
-
-**Run with specified parameters**
 
 ```shell
 python main_mnist.py -h
@@ -119,7 +103,7 @@ python main_mnist.py -h
     --silent              if True, shut down the visdom visualizer.
 ```
 
-**Full Experiment**
+Or:
 
 ```shell
 nohup ./main_mnist.sh > main_mnist.log &
@@ -127,30 +111,8 @@ nohup ./main_mnist.sh > main_mnist.log &
 
 ![result](pictures/result.png)
 
-## <h2 id="4">4. Explore</h2>
+## Meta Learning
 
-**New activation functions**
-
-1. Write a python script file under `activations`, such as *new_activation_functions.py*, where contains the implementation of new activation function.
-
-2. Import new activation functions in [activations/\_\_init\_\_.py](activations/__init__.py).
-
-**New network structure**
-
-1. Write a python script file under `models`, such as *new_network_structure.py*, where contains the definition of new network structure. New defined network structure should be a subclass of **BaseModel**, which defined in `models/models.py`.
-
-2. Import new network structure in [models/\_\_init\_\_.py](models/__init__.py).
-
-**NOTE**: New activation functions and network sctructures will be automatically added into argparse. So, it is not necessary to modify `main.py`.
-
-## <h2 id="5">5. Meta Learning</h2>
-
-### Setup
-```shell
-pip install learn2learn
-```
-
-### Run
 ```shell
 python meta_mnist.py --help
     usage: meta_mnist.py [-h] [--ways N] [--shots N] [-tps N] [-fas N]
@@ -179,14 +141,21 @@ python meta_mnist.py --help
                             activation function used to meta learning.
 ```
 
-### Run all
-```
+Or:
+
+```shell
 nohup ./meta_mnist.sh > meta_mnist.log &
 ```
 
+## ELSA
+
+See `ELSA.ipynb` for more details.
+
 ## Citation
+
 If you use this code, please cite the following paper:
-```
+
+```shell
 @misc{AReLU,
 Author = {Dengsheng Chen and Kai Xu},
 Title = {AReLU: Attention-based Rectified Linear Unit},
